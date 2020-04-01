@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="bootstrap-4.4.1.css">-->
 
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="bootstrap-4.4.1.css" rel="stylesheet" id="bootstrap-css"> <!--//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css-->
+    <script src="bootstrap-4.4.1.js"></script> <!--//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.js"></script>
+   <!-- <script src="https://code.jquery.com/jquery-3.4.1.slim.js"></script>-->
+   <script src="jquery-3.4.1.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,14 +27,15 @@
             </div><br />
  
             <!-- Login Form -->
-            <form id="formLogin">
+            <form method="POST" id="formLogin">
+                <label for="login" style="display: none" class="alert-danger"></label>
                 <input type="text" id="login" class="fadeIn second" name="username" placeholder="login">
                 <input type="password" id="password" class="fadeIn third" name="password" placeholder="password">
                 <input type="submit" class="fadeIn fourth">
             </form>
 
             <div id="formFooter">
-                <a class="underlineHover" href="#">Quero me cadastrar</a>
+                <a class="underlineHover" href="http://localhost:3000/cadastro.html">Quero me cadastrar</a>
             </div>
 
         </div>
@@ -50,16 +52,18 @@
 <script >
     var socket = io('http://localhost:3000');
 
-    function renderMessage(message){
-        $(".messages").append('<dic class="message"><strong>'+message.author+' - </strong>'+
+    function renderMessage(message,color){
+        $(".messages").append('<dic style=\"background-color:'+color+'\" class="message"><strong>'+message.author+' - </strong>'+
             message.message+'</div><br/>');
     }
 
     socket.on("receivedMessage", function(message){
-        renderMessage(message);
+        renderMessage(message, "yellow");
     });
-    socket.on("teste",function(hi){
-        console.log(hi);
+    socket.on("loginError",function(error){
+        console.log(error);
+        $(".alert-danger").show();
+        $(".alert-danger").text(error);
     });
 
     socket.on("logged", function(result){
@@ -93,14 +97,15 @@
             author: author,
             message: message
         };
-        renderMessage(messageObjetc);
+        renderMessage(messageObjetc,"blue-light");
         socket.emit('sendMessage', messageObjetc);
     }
 });
 
 </script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="bootstrap-4.4.1.js"></script>
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+<script src="jquery-3.4.1.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
 </body>
