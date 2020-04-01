@@ -12,31 +12,31 @@ const db_connect = (connection)=>{
 db_connect(connection);
 
 
-const delete_user = (connection, id)=>{
-    db_connect(connection);
+const delete_user = (id)=>{
+
     var sql = "DELETE FROM `usuario` WHERE `id` = "+id+"";
     connection.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Usuario Excluído!");
-    connection.end();
-});
+});    
+connection.end();
 }
 
 const update_user = (id, nome, senha)=>{
-    db_connect(connection);
+
     var sql = "UPDATE `usuario` SET `nome` = '"+nome+"', `senha`='"+senha+"' WHERE `id` = "+id+"";
     connection.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Usuario Atualizado!");
-    connection.end();
-});
+}); 
+  //connection.end();
 }
 
 
-function select_user(email, senha){
+function select_user(email){
     var user ="";
     return new Promise(function(resolve, reject){
-        connection.query("SELECT * FROM usuario WHERE email = '"+email+"' AND senha = '"+senha+"'", function (err, result, fields) {
+        connection.query("SELECT * FROM `usuario` WHERE `email` = '"+email+"'", function (err, result, fields) {
         if (err)  return reject(err);
         resolve(result);
         //console.log(user);
@@ -48,32 +48,41 @@ connection.end();
 }
 
 
-const insert_user = (connection, nome, email,senha) =>{
-    db_connect(connection);
+const insert_user = (nome, email,senha, telefone) =>{
+
     var sql = 
-    "INSERT INTO `usuario`(`id`, `nome`, `email`, `senha`, `status`) VALUES (null,'"+nome+"','"+email+"','"+senha+"',1)";
+    "INSERT INTO `usuario`(`id`, `nome`, `email`, `senha`, `status`, `telefone`) VALUES (null,'"+nome+"','"+email+"','"+senha+"',1, '"+telefone+"')";
     connection.query(sql, function (err, result) {
     if (err) throw err;
     console.log("Usuario adicionado!");
-    connection.end();
 });
 }
 
+const end_connection = ()=>{
+    connection.end();
+}
 
 function select_all_users(connection){
     var users ="";
-    db_connect(connection);
+
     return new Promise(function(resolve, reject){
         connection.query("SELECT * FROM usuario", function (err, result, fields) {
         if (err)  return reject(err);
         resolve(result);
         //console.log(user);
         });
-        connection.end();
-});
+}); 
+       connection.end();
+
 }
 
-module.exports = select_user;
+module.exports = {
+    select_user,
+    insert_user,
+    update_user,
+    delete_user,
+    end_connection
+}
 
 
 
