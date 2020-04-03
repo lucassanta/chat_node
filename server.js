@@ -53,12 +53,24 @@ io.on('connection', socket => {
         });
 
     });
+    socket.on("addChat", users =>{
+       var result = "consulta ao banco aqui";
 
-    socket.on('sendMessage', data => {
-        console.log(data);
-        messages.push(data);
-        socket.broadcast.emit('receivedMessage', data);
+       var chat = "";
+       if(result.length == 0){ //senão encontrar um chat
+           //tbChat.creatChat()
+           var chat;  //consulta para recuperar o chat no banco afim de saber o id
+       }
+       socket.emit("chat", chat);
     });
+    socket.on("joinChat", chat =>{
+        socket.on('sendMessage'+chat[id], data => {
+            console.log(data);
+            messages.push(data);
+            socket.broadcast.emit('receivedMessage'+chat[id], data);
+        });
+    })
+
 });
 server.listen(3000, () => {
     console.log("Servidor rodando na porta 3000");

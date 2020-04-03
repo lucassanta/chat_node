@@ -43,7 +43,7 @@ function select_user(email){
         });
 
 });
-connection.end();
+//connection.end();
 
 }
 
@@ -72,7 +72,7 @@ function select_all_users(connection){
         //console.log(user);
         });
 }); 
-       connection.end();
+       //connection.end();
 
 }
 
