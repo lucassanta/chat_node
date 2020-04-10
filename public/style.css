@@ -16,7 +16,7 @@ html, body {
     flex-direction: column;
   }
   
-  .name,.message {
+  .message {
     width: 600px;
     border: 1px solid #ddd;
     height: 50px;

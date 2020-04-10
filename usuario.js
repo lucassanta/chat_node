@@ -1,10 +1,10 @@
 
 var connection = require("./connection");
 
-var user ="";
+var user = "";
 
-const db_connect = (connection)=>{
-    connection.connect(function(err){
+const db_connect = (connection) => {
+    connection.connect(function (err) {
         if (err) throw err;
         console.log('Conectado!');
     });
@@ -12,67 +12,67 @@ const db_connect = (connection)=>{
 db_connect(connection);
 
 
-const delete_user = (id)=>{
+const delete_user = (id) => {
 
-    var sql = "DELETE FROM `usuario` WHERE `id` = "+id+"";
+    var sql = "DELETE FROM `usuario` WHERE `id` = " + id + "";
     connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Usuario Excluído!");
-});    
-connection.end();
-}
-
-const update_user = (id, nome, senha)=>{
-
-    var sql = "UPDATE `usuario` SET `nome` = '"+nome+"', `senha`='"+senha+"' WHERE `id` = "+id+"";
-    connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Usuario Atualizado!");
-}); 
-  //connection.end();
-}
-
-
-function select_user(email){
-    var user ="";
-    return new Promise(function(resolve, reject){
-        connection.query("SELECT * FROM `usuario` WHERE `email` = '"+email+"'", function (err, result, fields) {
-        if (err)  return reject(err);
-        resolve(result);
-        //console.log(user);
-        });
-
-});
-//connection.end();
-
-}
-
-
-const insert_user = (nome, email,senha, telefone) =>{
-
-    var sql = 
-    "INSERT INTO `usuario`(`id`, `nome`, `email`, `senha`, `status`, `telefone`) VALUES (null,'"+nome+"','"+email+"','"+senha+"',1, '"+telefone+"')";
-    connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("Usuario adicionado!");
-});
-}
-
-const end_connection = ()=>{
+        if (err) throw err;
+        console.log("Usuario Excluído!");
+    });
     connection.end();
 }
 
-function select_all_users(connection){
-    var users ="";
+const update_user = (id, nome, senha) => {
 
-    return new Promise(function(resolve, reject){
-        connection.query("SELECT * FROM usuario", function (err, result, fields) {
-        if (err)  return reject(err);
-        resolve(result);
-        //console.log(user);
+    var sql = "UPDATE `usuario` SET `nome` = '" + nome + "', `senha`='" + senha + "' WHERE `id` = " + id + "";
+    connection.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Usuario Atualizado!");
+    });
+    //connection.end();
+}
+
+
+function select_user(email) {
+    var user = "";
+    return new Promise(function (resolve, reject) {
+        connection.query("SELECT * FROM `usuario` WHERE `email` = '" + email + "'", function (err, result, fields) {
+            if (err) return reject(err);
+            resolve(result);
+            //console.log(user);
         });
-}); 
-       //connection.end();
+
+    });
+    //connection.end();
+
+}
+
+
+const insert_user = (nome, email, senha, telefone) => {
+
+    var sql =
+        "INSERT INTO `usuario`(`id`, `nome`, `email`, `senha`, `status`, `telefone`) VALUES (null,'" + nome + "','" + email + "','" + senha + "',1, '" + telefone + "')";
+    connection.query(sql, function (err, result) {
+        if (err) throw err;
+        console.log("Usuario adicionado!");
+    });
+}
+
+const end_connection = () => {
+    connection.end();
+}
+
+function select_all_users(connection) {
+    var users = "";
+
+    return new Promise(function (resolve, reject) {
+        connection.query("SELECT * FROM usuario", function (err, result, fields) {
+            if (err) return reject(err);
+            resolve(result);
+            //console.log(user);
+        });
+    });
+    //connection.end();
 
 }
 

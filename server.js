@@ -31,8 +31,8 @@ io.on('connection', socket => {
     console.log("Socket conectado:" + socket.id);
     //socket.broadcast.emit("teste", "hi"); //teste 
     // console.log(usuario.update_user(4, "Fred", "123333")); //teste
-    socket.on('login', user => { //pedido de login
-        console.log(user);
+        socket.on('login', user => { //pedido de login
+            console.log(user);
         usuario.select_user(user.username).then(function (result) { //promisse procura user no db
                 if (result.length != 0) {
                     if(bcrypt.compareSync(user.password, result[0].senha)) socket.emit("logged", result); //se encontrado

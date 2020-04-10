@@ -1,71 +1,71 @@
 var connection = require("./connection");
 
-var message ="";
+var message = "";
 
-const db_connect = ()=>{
-    connection.connect(function(err){
+const db_connect = () => {
+    connection.connect(function (err) {
         if (err) throw err;
         console.log('Conectado!');
     });
 }
 
 
-const delete_message = (id)=>{
+const delete_message = (id) => {
     db_connect();
-    var sql = "DELETE FROM `message` WHERE `id` = "+id+"";
+    var sql = "DELETE FROM `message` WHERE `id` = " + id + "";
     connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("message Excluída!");
-    connection.end();
-});
+        if (err) throw err;
+        console.log("message Excluída!");
+        connection.end();
+    });
 }
 
-const update_message = (id, nome, senha)=>{
+const update_message = (id, nome, senha) => {
     db_connect();
-    var sql = "UPDATE `message` SET `nome` = '"+nome+"', `senha`='"+senha+"' WHERE `id` = "+id+"";
+    var sql = "UPDATE `message` SET `nome` = '" + nome + "', `senha`='" + senha + "' WHERE `id` = " + id + "";
     connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("message Atualizada!");
-    connection.end();
-});
+        if (err) throw err;
+        console.log("message Atualizada!");
+        connection.end();
+    });
 }
 
 
-function select_message(email, senha){
-    var message ="";
+function select_message(email, senha) {
+    var message = "";
     db_connect();
-    return new Promise(function(resolve, reject){
-        connection.query("SELECT * FROM message WHERE email = '"+email+"' AND senha = '"+senha+"'", function (err, result, fields) {
-        if (err)  return reject(err);
-        resolve(result);
-        //console.log(message);
+    return new Promise(function (resolve, reject) {
+        connection.query("SELECT * FROM message WHERE email = '" + email + "' AND senha = '" + senha + "'", function (err, result, fields) {
+            if (err) return reject(err);
+            resolve(result);
+            //console.log(message);
         });
         connection.end();
-});
+    });
 }
 
-const insert_message = (nome, email,senha) =>{
+const insert_message = (nome, email, senha) => {
     db_connect();
-    var sql = 
-    "INSERT INTO `message`(`messageID`, `messageChatID`, `messageText`, `messageSenderID`, `messageReceiverID`, `messageSendAt`, `messageReadAt`, `messageStatustiny`, `messageVisibilitytiny`) VALUES (null,'"+nome+"','"+email+"','"+senha+"',1)";
+    var sql =
+        "INSERT INTO `message`(`messageID`, `messageChatID`, `messageText`, `messageSenderID`, `messageReceiverID`, `messageSendAt`, `messageReadAt`, `messageStatustiny`, `messageVisibilitytiny`) VALUES (null,'" + nome + "','" + email + "','" + senha + "',1)";
     connection.query(sql, function (err, result) {
-    if (err) throw err;
-    console.log("message adicionada!");
-    connection.end();
-});
+        if (err) throw err;
+        console.log("message adicionada!");
+        connection.end();
+    });
 }
 
-function select_all_messages(){
-    var messages ="";
+function select_all_messages() {
+    var messages = "";
     db_connect();
-    return new Promise(function(resolve, reject){
+    return new Promise(function (resolve, reject) {
         connection.query("SELECT * FROM message", function (err, result, fields) {
-        if (err)  return reject(err);
-        resolve(result);
-        //console.log(message);
+            if (err) return reject(err);
+            resolve(result);
+            //console.log(message);
         });
         connection.end();
-});
+    });
 }
 
 /*select_message("admin", "admin").then(function(result){
@@ -91,5 +91,5 @@ select_all_messages().then(function(result){
       console.log(messages);
 
  }, 500);
- 
+
  */
