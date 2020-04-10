@@ -12,20 +12,20 @@ const db_connect = ()=>{
 
 const delete_message = (id)=>{
     db_connect();
-    var sql = "DELETE FROM `mensagem` WHERE `id` = "+id+"";
+    var sql = "DELETE FROM `message` WHERE `id` = "+id+"";
     connection.query(sql, function (err, result) {
     if (err) throw err;
-    console.log("Mensagem Excluída!");
+    console.log("message Excluída!");
     connection.end();
 });
 }
 
 const update_message = (id, nome, senha)=>{
     db_connect();
-    var sql = "UPDATE `mensagem` SET `nome` = '"+nome+"', `senha`='"+senha+"' WHERE `id` = "+id+"";
+    var sql = "UPDATE `message` SET `nome` = '"+nome+"', `senha`='"+senha+"' WHERE `id` = "+id+"";
     connection.query(sql, function (err, result) {
     if (err) throw err;
-    console.log("Mensagem Atualizada!");
+    console.log("message Atualizada!");
     connection.end();
 });
 }
@@ -35,7 +35,7 @@ function select_message(email, senha){
     var message ="";
     db_connect();
     return new Promise(function(resolve, reject){
-        connection.query("SELECT * FROM mensagem WHERE email = '"+email+"' AND senha = '"+senha+"'", function (err, result, fields) {
+        connection.query("SELECT * FROM message WHERE email = '"+email+"' AND senha = '"+senha+"'", function (err, result, fields) {
         if (err)  return reject(err);
         resolve(result);
         //console.log(message);
@@ -47,10 +47,10 @@ function select_message(email, senha){
 const insert_message = (nome, email,senha) =>{
     db_connect();
     var sql = 
-    "INSERT INTO `mensagem`(`id`, `nome`, `email`, `senha`, `status`) VALUES (null,'"+nome+"','"+email+"','"+senha+"',1)";
+    "INSERT INTO `message`(`messageID`, `messageChatID`, `messageText`, `messageSenderID`, `messageReceiverID`, `messageSendAt`, `messageReadAt`, `messageStatustiny`, `messageVisibilitytiny`) VALUES (null,'"+nome+"','"+email+"','"+senha+"',1)";
     connection.query(sql, function (err, result) {
     if (err) throw err;
-    console.log("Mensagem adicionada!");
+    console.log("message adicionada!");
     connection.end();
 });
 }
@@ -59,7 +59,7 @@ function select_all_messages(){
     var messages ="";
     db_connect();
     return new Promise(function(resolve, reject){
-        connection.query("SELECT * FROM mensagem", function (err, result, fields) {
+        connection.query("SELECT * FROM message", function (err, result, fields) {
         if (err)  return reject(err);
         resolve(result);
         //console.log(message);
