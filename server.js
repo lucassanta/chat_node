@@ -31,20 +31,20 @@ io.on('connection', socket => {
     console.log("Socket conectado:" + socket.id);
     //socket.broadcast.emit("teste", "hi"); //teste 
     // console.log(usuario.update_user(4, "Fred", "123333")); //teste
-    socket.on('login', user => {
+    socket.on('login', user => { //pedido de login
         console.log(user);
-        usuario.select_user(user.username).then(function (result) {
+        usuario.select_user(user.username).then(function (result) { //promisse procura user no db
                 if (result.length != 0) {
-                    if(bcrypt.compareSync(user.password, result[0].senha)) socket.emit("logged", result);
+                    if(bcrypt.compareSync(user.password, result[0].senha)) socket.emit("logged", result); //se encontrado
                 }
-                else socket.emit("loginError", "Usuário e/ou senha incorretos!");
+                else socket.emit("loginError", "Usuário e/ou senha incorretos!"); //se não for encontrado
         }).catch(function (err) {
             console.log(err);
         });
 
     });
 
-    socket.on('register',register =>{
+    socket.on('register',register =>{ //cadastrar usuario 
         crypt(register.senha).then(function(senha){
             senhaHash = senha;
             usuario.insert_user(register.nome, register.email,senhaHash,register.telefone);
