@@ -1,5 +1,5 @@
 
-var connection = require("./connection");
+//var connection = require("./connection");
 
 var chat = "";
 
@@ -9,10 +9,10 @@ const db_connect = (connection) => {
         console.log('Conectado!');
     });
 }
-db_connect(connection);
+//db_connect(connection);
 
 
-const delete_chat = (id) => {
+const delete_chat = (connection, id) => {
 
     var sql = "DELETE FROM `tb_chats` WHERE `chatID`=" + id + "";
     connection.query(sql, function (err, result) {
@@ -33,7 +33,7 @@ const update_chat = (id, nome, senha)=>{
 }
 
 */
-function select_chat(chatID) {
+function select_chat(connection, chatID) {
     var chat = "";
     return new Promise(function (resolve, reject) {
         connection.query("SELECT * FROM `tb_chats` WHERE `chatID` = '" + chatID + "'", function (err, result, fields) {
@@ -47,10 +47,11 @@ function select_chat(chatID) {
 
 }
 
-const validate_duplicate = (userIID, userIIID) => {
+const validate_duplicate = (connection, userIID, userIIID) => {
     return new Promise(function (resolve, reject) {
-        connection.query("SELECT chatID FROM `tb_chats` WHERE `userIID` = " + userIID + " AND `userIIID` = " + userIIID +
-            " or `userIID` = " + userIIID + " AND `userIIID` = " + userIID, function (err, result, fields) {
+        connection.query("SELECT `chatID`, `chatCreatedAt`, `nome` FROM `tb_chats` INNER JOIN `usuario` on `id` = `userIID` or `id` = `userIIID` "+
+        "WHERE `id` = "+userIIID+"   AND `userIID` = " + userIID + " AND `userIIID` = " + userIIID +
+        " or `userIID` = " + userIIID + " AND `userIIID` = " + userIID, function (err, result, fields) {
                 if (err) return reject(err);
                 else if (result.length != 0) reject(result);
                 else resolve(result);
@@ -58,7 +59,7 @@ const validate_duplicate = (userIID, userIIID) => {
     });
 }
 
-const insert_chat = (userIID, userIIID) => {
+const insert_chat = (connection, userIID, userIIID) => {
     var date = "now()";
     var sql =
         "INSERT INTO `tb_chats`(`chatID`, `userIID`, `userIIID`, `chatCreatedAt`, `chatUpdatedAt`, `chatLastMessageReceivedAt`,`chatLastMessageSentAt`, `chatLastMessageId`) VALUES (NULL," + userIID + "," + userIIID + "," + date + "," + date + "," + date + "," + date + ",0)";
@@ -70,15 +71,15 @@ const insert_chat = (userIID, userIIID) => {
 
 
 
-const end_connection = () => {
+const end_connection = (connection) => {
     connection.end();
 }
 
-function select_all_chats(userIID) {
+function select_all_chats(connection, userIID) {
     var chats = "";
 
     return new Promise(function (resolve, reject) {
-        connection.query("SELECT * FROM `tb_chats` WHERE `userIID` = '" + userIID + "' or `userIIID` = '" + userIID + "'", function (err, result, fields) {
+        connection.query("SELECT chatID FROM `tb_chats` WHERE `userIID` = '" + userIID + "' or `userIIID` = '" + userIID + "'", function (err, result, fields) {
             if (err) return reject(err);
             resolve(result);
             //console.log(chat);
@@ -88,22 +89,38 @@ function select_all_chats(userIID) {
 
 }
 
+function select_all_chats_from(connection, id, chatID) {
+    var chats = "";
+
+    return new Promise(function (resolve, reject) {
+        connection.query("SELECT nome, id, (SELECT "+chatID+") AS chatID from usuario where id = (SELECT userIIID FROM `tb_chats` WHERE chatID = "
+        +chatID+" AND userIID = "+id+") or id = (SELECT userIID FROM `tb_chats` WHERE chatID = "+chatID+" and userIIID = "+id+")", function (err, result, fields) {
+            if (err) return reject(err);
+            resolve(result);
+            //console.log(chat);
+        });
+    });
+    //connection.end();
+
+}
+
+
 //var chats = insert_chat(9, 11);
 
 //console.log(chats);
 
-delete_chat(2);
-delete_chat(3);
-
+//delete_chat(2);
+//delete_chat(3);
+/*
 var chats;
-select_all_chats(10).then(function (result) {
+select_all_chats(9).then(function (result) {
     chats = result;
     console.log(chats);
 }).catch(function (err) {
     console.log(err);
 });
 //console.log(chats);
-
+ /* 
 var chat;
 chat = select_chat(2).then(function (result) {
     console.log(result);
@@ -111,7 +128,7 @@ chat = select_chat(2).then(function (result) {
     console.log(err);
 });
 //console.log(chat);
-/*  
+
 validate_duplicate(11,10).then(function(result){
      chats = result;
     console.log("sem chats");
@@ -124,11 +141,14 @@ validate_duplicate(11,10).then(function(result){
  */
 
 module.exports = {
+   
     select_chat,
     insert_chat,
     /*update_ch/at,*/
     delete_chat,
-    end_connection
+    end_connection,
+    select_all_chats,
+    select_all_chats_from
 }
 
 

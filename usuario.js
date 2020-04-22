@@ -9,10 +9,10 @@ const db_connect = (connection) => {
         console.log('Conectado!');
     });
 }
-db_connect(connection);
+//db_connect(connection);
 
 
-const delete_user = (id) => {
+const delete_user = (connection, id) => {
 
     var sql = "DELETE FROM `usuario` WHERE `id` = " + id + "";
     connection.query(sql, function (err, result) {
@@ -22,7 +22,7 @@ const delete_user = (id) => {
     connection.end();
 }
 
-const update_user = (id, nome, senha) => {
+const update_user = (connection, id, nome, senha) => {
 
     var sql = "UPDATE `usuario` SET `nome` = '" + nome + "', `senha`='" + senha + "' WHERE `id` = " + id + "";
     connection.query(sql, function (err, result) {
@@ -33,7 +33,7 @@ const update_user = (id, nome, senha) => {
 }
 
 
-function select_user(email) {
+function select_user(connection, email) {
     var user = "";
     return new Promise(function (resolve, reject) {
         connection.query("SELECT * FROM `usuario` WHERE `email` = '" + email + "'", function (err, result, fields) {
@@ -48,7 +48,7 @@ function select_user(email) {
 }
 
 
-const insert_user = (nome, email, senha, telefone) => {
+const insert_user = (connection, nome, email, senha, telefone) => {
 
     var sql =
         "INSERT INTO `usuario`(`id`, `nome`, `email`, `senha`, `status`, `telefone`) VALUES (null,'" + nome + "','" + email + "','" + senha + "',1, '" + telefone + "')";
@@ -58,7 +58,7 @@ const insert_user = (nome, email, senha, telefone) => {
     });
 }
 
-const end_connection = () => {
+const end_connection = (connection) => {
     connection.end();
 }
 
@@ -73,10 +73,10 @@ function select_all_users(connection) {
         });
     });
     //connection.end();
-
 }
 
 module.exports = {
+    db_connect ,
     select_user,
     insert_user,
     update_user,
@@ -109,5 +109,5 @@ select_all_users().then(function(result){
  setTimeout(() => {
       console.log(users);
 
- }, 500);
+ }, 500);/*
  */

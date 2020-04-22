@@ -57,7 +57,6 @@ Website: http://emilcarlsson.se/
 
   <div class="wrapper fadeInDown">
     <div id="formContent">
-      -->
       <!-- Tabs Titles -->
 
       <!-- Icon-->
@@ -71,7 +70,7 @@ Website: http://emilcarlsson.se/
         <label for="login" style="display: none" class="alert-danger"></label>
         <input type="text" id="login" class="fadeIn second" name="username" placeholder="login">
         <input type="password" id="password" class="fadeIn third" name="password" placeholder="password">
-        <input type="submit" class="fadeIn fourth">
+        <input type="submit" id="btnLogin" class="fadeIn fourth">
       </form>
 
       <div id="formFooter">
@@ -359,7 +358,7 @@ Website: http://emilcarlsson.se/
       $('.contact.active .preview').html(message);
       $(".messages").animate({ scrollTop: $(document).height() }, "fast");
     };
-
+    
     $('.submit').click(function () {
       var author = $("#username").text();
       var message = $('input[name=message]').val();
@@ -383,16 +382,41 @@ Website: http://emilcarlsson.se/
       $(".alert-danger").show();
       $(".alert-danger").text(error);
     });
-
+    //if($("#formLogin").is(":visible")){
+  
     socket.on("logged", function (result) {
       $("#frame").show();
       $(".wrapper").hide();
-      $("#username").append(result[0].nome);
+      $("#username").text(result[0].nome);
       console.log(result);
+      socket.emit("list_chats", result[0].id); //pedido para listar chats
     });
+    socket.on("list_chats", function(chats){
+      console.log("chats");
+      console.log(chats);
+      function listar(item){
+
+$("#contacts ul").append("<li class=\"contact\" value="+item[0].chatID+">"+
+            "<div class=\"wrap\">"+
+             " <span class=\"contact-status\"></span>"+
+             " <img src=\"http://emilcarlsson.se/assets/jonathansidwell.png\" alt=\"\" />"+
+             "<div class=\"meta\">"+
+              " <p class=\"name\">"+item[0].nome+"</p>"+
+              "<p class=\"preview\"><span>You:</span> That's bullshit. This"+
+                "  deal is solid.</p>"+
+                " </div>"+
+                " </div>"+
+                " </li>"
+);
+      }
+      $("#contacts").html("<ul></ul>");
+          chats.forEach(listar)
+      });
+  
 
     $("#formLogin").submit(function (e) {
       e.preventDefault();
+      if($(".wrapper").is(":visible")){
       var username = $("#login").val();
       var password = $("#password").val();
 
@@ -400,8 +424,9 @@ Website: http://emilcarlsson.se/
         username: username,
         password: password
       };
-
+      console.log("pedido de login");
       socket.emit('login', loginObject);
+    }
     });
 
 

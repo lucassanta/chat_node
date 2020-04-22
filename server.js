@@ -5,8 +5,12 @@ const app = express();
 const server = require('http').createServer(app); //protocolo http
 const io = require('socket.io')(server); //protocolo ws websocket
 
-const usuario = require("./usuario");
+var connection = require("./connection");
 
+
+const usuario = require("./usuario");
+const tb_chats = require("./chat");
+usuario.db_connect(connection);
 var bcrypt = require('bcryptjs');
 
 var crypt = (senha) =>{ 
@@ -33,7 +37,7 @@ io.on('connection', socket => {
     // console.log(usuario.update_user(4, "Fred", "123333")); //teste
         socket.on('login', user => { //pedido de login
             console.log(user);
-        usuario.select_user(user.username).then(function (result) { //promisse procura user no db
+        usuario.select_user(connection, user.username).then(function (result) { //promisse procura user no db
                 if (result.length != 0) {
                     if(bcrypt.compareSync(user.password, result[0].senha)) socket.emit("logged", result); //se encontrado
                 }
@@ -47,30 +51,52 @@ io.on('connection', socket => {
     socket.on('register',register =>{ //cadastrar usuario 
         crypt(register.senha).then(function(senha){
             senhaHash = senha;
-            usuario.insert_user(register.nome, register.email,senhaHash,register.telefone);
+            usuario.insert_user(connection, register.nome, register.email,senhaHash,register.telefone);
         }).catch(function(){
             console.log("Não foi inserido!");
         });
 
     });
     socket.on("addChat", users =>{
-       var result = "consulta ao banco aqui";
+        var result = "";
+        tb.chats.validate_duplicate(connection, users.userIID, users.userIIID).then(function(result){
+            tb_chats.insert_chat(connection, users.userIID, users.userIIID);
+        }).catch(function(err){
+            result = err;
+            socket.emit("chat", result);
+        });
 
-       var chat = "";
-       if(result.length == 0){ //senão encontrar um chat
-           //tbChat.creatChat()
-           var chat;  //consulta para recuperar o chat no banco afim de saber o id
-       }
-       socket.emit("chat", chat);
+        tb_chats.validate_duplicate(connection, users.userIID, users.userIIID).then(function(result){
+            tb_chats.insert_chat(connection, users.userIID, users.userIIID);
+        }).catch(function(err){
+            result = err;
+            socket.emit("chat", result);
+        });
     });
-    socket.on("joinChat", chat =>{
-        socket.on('sendMessage'+chat[id], data => {
+    socket.on("joinChat", id =>{
+        socket.on('sendMessage'+id, data => {
             console.log(data);
             messages.push(data);
-            socket.broadcast.emit('receivedMessage'+chat[id], data);
+            socket.broadcast.emit('receivedMessage'+id, data);
         });
-    })
-
+    });
+    socket.on("list_chats",userIID =>{
+        var chats = [];
+        tb_chats.select_all_chats(connection, userIID).then(function (result) {
+            for(var i = 0 ; i < result.length; i++){
+                tb_chats.select_all_chats_from(connection, userIID, result[i]["chatID"]).then(function(res){
+                    chats.push(res);
+                    socket.emit("list_chats", chats);
+                    console.log(chats);
+                }).catch(function(err){
+                    console.log(err);
+                });
+            }
+           
+        }).catch(function (err) {
+            console.log(err);
+        });
+    });
 });
 server.listen(3000, () => {
     console.log("Servidor rodando na porta 3000");
