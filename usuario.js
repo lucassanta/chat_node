@@ -38,7 +38,8 @@ function select_user(connection, email) {
     return new Promise(function (resolve, reject) {
         connection.query("SELECT * FROM `usuario` WHERE `email` = '" + email + "'", function (err, result, fields) {
             if (err) return reject(err);
-            resolve(result);
+            else if (result.length == 0) reject(null);
+            else resolve(result);
             //console.log(user);
         });
 
