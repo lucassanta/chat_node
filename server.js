@@ -107,9 +107,9 @@ io.on('connection', socket => {
         });
     });
 
-    socket.on("ChatsProntos",p => {
-        var chatsProntos = true;
-        socket.emit("ChatsProntos", chatsProntos);
+    socket.on("chatsReady",p => {
+        var chatsReady = true;
+        socket.emit("chatsReadyServer", chatsReady);
     });
 });
 server.listen(3000, () => {

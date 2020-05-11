@@ -264,8 +264,9 @@ Website: http://emilcarlsson.se/
           username: username,
           password: password
         };
-        console.log("pedido de login");
         socket.emit('login', loginObject);
+        console.log("pedido de login");
+
       //}
     });
     
@@ -403,10 +404,10 @@ Website: http://emilcarlsson.se/
        }
       $("#contacts").html("<ul></ul>");
       chats.forEach(listar);
-      socket.emit("ChatsProntos", true);
+      socket.emit("chatsReady", true);
     });
 
-    socket.on("ChatsProntos", chatsProntos => {
+    socket.on("chatsReadyServer", chatsReady => {
       $("li.contact").click(function(){ 
       $(".messages").html("<ul></ul>");
       console.log(this.id);
