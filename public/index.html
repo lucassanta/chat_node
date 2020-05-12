@@ -233,15 +233,12 @@ Website: http://emilcarlsson.se/
 
 
       <div class="messages">
-        <ul>
-          
-        </ul>
+        
       </div>
 
       <div class="message-input">
         <div class="wrap">
-          <input name="message" type="text" placeholder="Write your
-              message..." />
+          <input name="message" type="text" placeholder="Write your message..." />
           <i class="fa fa-paperclip attachment" aria-hidden="true"></i>
           <button class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
         </div>
@@ -320,15 +317,15 @@ Website: http://emilcarlsson.se/
       $("#status-options").removeClass("active");
     });
 
-    function newMessage(author) {
-      message = $(".message-input input").val();
+    function newMessage(data) {
+      message = $("input[name=message]").val();
       if ($.trim(message) == '') {
         return false;
       }
-      $('<li class="sent"><img src="https://img.icons8.com/flat_round/64/000000/unicorn.png" alt="'+author+'"/><p>' + message + '</p></li>').appendTo($('.messages ul')); //adiciona 
+      $('<li class="sent"><img src="https://img.icons8.com/flat_round/64/000000/unicorn.png" alt="'+data[0]+'"/><p>' + message + '    </p><span>'+data[1]+'</span></li>').appendTo($('.content-message')); //adiciona 
       //<a href="https://icons8.com/icon/81118/unicórnio">Unicórnio icon by Icons8</a>
-      $('.message-input input').val(null);
-      $('.contact.active .preview').html('<span>You: </span>' + message);
+      $('input[name=message]').val(null);
+      $('.active > div.wrap > div.meta > p.preview').html('<span>You: </span>' + message);
       $(".messages").animate({ scrollTop: $(document).height() }, "fast");
     };
 
@@ -336,15 +333,15 @@ Website: http://emilcarlsson.se/
       if ($.trim(message.message) == '') {
         return false;
       }
-      $('<li class="replies"><img src="https://img.icons8.com/flat_round/64/000000/funny-zebra.png" alt="' + message.author + '" /><p>' + message.message + '</p></li>').appendTo($('.messages ul')); //adiciona 
+      $('<li class="replies"><img src="https://img.icons8.com/flat_round/64/000000/funny-zebra.png" alt="' + message.author + '" /><p>' + message.message + '</p><span>'+message.date+'</span></li>').appendTo($('.content-message')); //adiciona 
       //<a href="https://icons8.com/icon/81227/zebra">zebra icon by Icons8</a>
-      $('.contact.active .preview').html('<span>'+message.author+": </span>"+message.message);
+      $('.active > div.wrap > div.meta > p.preview').html('<span>'+message.author+": </span>"+message.message);
       $(".messages").animate({ scrollTop: $(document).height() }, "fast");
     };
 
    var roomID;
    
-  function joinChat(id){
+ /* function joinChat(id){
         $(".messages").html("<ul></ul>");
         $(".messages").val(id);
         $(".active").removeClass("active");
@@ -360,30 +357,33 @@ Website: http://emilcarlsson.se/
         socket.emit("joinChat",dadosObject);
         roomID = id;
         $(".contact-profile > p").text(nome);
-    };
+    };*/
 
-    $(".submit .fa-paper-plane").click(function (e) {
+    $("button.submit i.fa-paper-plane").click(function (e) {
       e.preventDefault();
       var author = $("#username").text();
-      var message = $('input[name=message]').val();''
-
+      var message = $('input[name=message]').val();
       if (message.length) {
+        var now = new Date;
+        var month = now.getMonth()+1;
+        var fullDate = "  "+now.getDate()+" / "+month+" / "+now.getFullYear()+" "+now.getHours()+":"+now.getUTCMinutes();
+
         var messageObjetc = {
           author: author,
-          message: message
+          message: message,
+          date:fullDate
         };
         //renderMessage(messageObjetc,"blue-light");
         socket.emit('sendMessage', messageObjetc);
+        newMessage([author,messageObjetc.date]);
       }
-      newMessage(author);
     });
 
     socket.on("receivedMessage", function (message) {
-      console.log("Mensagem Recebida cliente "+message);
+      console.log("Mensagem Recebida  de:"+ message.author+", mensagem"+message.message);
       renderMessage(message);
     });
-    //if($("#formLogin").is(":visible")){
-
+    
     socket.on("list_chats", function (chats) {
       console.log("chats");
       console.log(chats);
@@ -409,11 +409,12 @@ Website: http://emilcarlsson.se/
 
     socket.on("chatsReadyServer", chatsReady => {
       $("li.contact").click(function(){ 
-      $(".messages").html("<ul></ul>");
+        console.log(chatsReady);
+      $(".messages").html("<ul  class='content-message'></ul>");
       console.log(this.id);
-        $(".messages").val(this.id);
+        $("div.messages").val(this.id);
         $(".active").removeClass("active");
-        $("#contact"+this.id).addClass("active");
+        $("#"+this.id).addClass("active");
         console.log("id "+ this.id);
         var nome = $("#"+this.id+" > div.contact-wrap > div.meta > p.name").text();
         console.log(nome);
