@@ -10,6 +10,7 @@ var connection = require("./connection");
 
 const usuario = require("./usuario");
 const tb_chats = require("./chat");
+const message = require("./mensagem");
 usuario.db_connect(connection);
 var bcrypt = require('bcryptjs');
 
@@ -29,17 +30,19 @@ app.use('/', (req, res) => {
     res.render('index.html');
 });
 
-let messages = [];
-var username;
+
 io.on('connection', socket => {
     console.log("Socket conectado:" + socket.id);
-    //socket.broadcast.emit("teste", "hi"); //teste 
-    // console.log(usuario.update_user(4, "Fred", "123333")); //teste
+    let messages = [];
+    var user_id;
     socket.on('login', user => { //pedido de login
         usuario.select_user(connection, user.username).then(function (result) { //promisse procura user no db
             console.log(user);
-            if (bcrypt.compareSync(user.password, result[0].senha)) socket.emit("logged", result); //se encontrado
-            else socket.emit("loginError", "Usuário e/ou senha incorretos!"); //se encontrado, mas senha errada
+            if (bcrypt.compareSync(user.password, result[0].senha)){
+                socket.emit("logged", result); //se encontrado
+                user_id = result[0].id;
+            }
+                else socket.emit("loginError", "Usuário e/ou senha incorretos!"); //se encontrado, mas senha errada
         }).catch(function (err) {
             console.log(err);
         });
@@ -50,7 +53,7 @@ io.on('connection', socket => {
             senhaHash = senha;
             usuario.insert_user(connection, register.nome, register.email, senhaHash, register.telefone);
         }).catch(function () {
-            console.log("Não foi inserido!");
+            console.log("Not inserted!");
         });
 
     });
@@ -73,15 +76,29 @@ io.on('connection', socket => {
 
     var room;
     socket.on("joinChat", dadosObject => {
-        room = dadosObject.id;
-        console.log(dadosObject.nome + " Entrou na sala : " + dadosObject.id);
-        socket.join(dadosObject.id);
-        console.log(room);
-
+        if(room !=  dadosObject.id){
+            room = dadosObject.id;
+            console.log(dadosObject.nome + " Join in chat : " + dadosObject.id);
+            socket.join(dadosObject.id);
+            message.select_all_messages(connection, dadosObject.id).then(function(result){
+                socket.emit("listMessage",result);
+            }).catch(function(err){
+                console.log(err);
+            });
+            console.log(room);
+        }
     });
 
     socket.to(room).on('sendMessage', data => {
-        console.log("Enviou mensagem");
+        console.log("Message sent");
+        console.log(user_id);
+        tb_chats.select_receiver(connection, data.chatID, user_id).then(function(result){
+            console.log(result[0].receiver);
+            console.log(data.chatID);
+            message.insert_message(connection,data.chatID, data.message, user_id,result[0].receiver);
+        }).catch(function(err){ 
+            console.log(err);
+        });
         console.log(data);
         messages.push(data);
         socket.to(room).emit('receivedMessage', data);
@@ -95,7 +112,9 @@ io.on('connection', socket => {
             for (var i = 0; i < result.length; i++) {
                 tb_chats.select_all_chats_from(connection, userIID, result[i]["chatID"]).then(function (res) {
                     chats.push(res);
-                    socket.emit("list_chats", chats);
+                    if(i = (result.length - 1)){
+                    socket.emit("list_chats_server", chats);
+                    }
                     console.log(chats);
                 }).catch(function (err) {
                     console.log(err);
@@ -108,10 +127,11 @@ io.on('connection', socket => {
     });
 
     socket.on("chatsReady",p => {
+        console.log(true);
         var chatsReady = true;
         socket.emit("chatsReadyServer", chatsReady);
     });
 });
 server.listen(3000, () => {
-    console.log("Servidor rodando na porta 3000");
+    console.log("Server running on port 3000");
 });

@@ -248,6 +248,13 @@ Website: http://emilcarlsson.se/
     var socket = io('http://localhost:3000');
     $(document).ready(function(){
 
+      var userID;
+      var user = $("#username").text();
+      var roomID;
+      var receiver;
+      var messages;
+
+
     $("#formLogin").submit(function (e) {
       e.preventDefault();
       //if ($(".wrapper").is(":visible")) {
@@ -263,12 +270,13 @@ Website: http://emilcarlsson.se/
 
       //}
     });
-    
+ 
     socket.on("logged", function (result) {
       $("#frame").show();
       $(".wrapper").hide();
       $("#username").text(result[0].nome);
       console.log(result);
+      userID = result[0].id;
       socket.emit("list_chats", result[0].id); //pedido para listar chats
     });
 
@@ -277,8 +285,6 @@ Website: http://emilcarlsson.se/
       $(".alert-danger").show();
       $(".alert-danger").text(error);
     });
-
-    var user = $("#username").text();
 
     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
 
@@ -314,8 +320,8 @@ Website: http://emilcarlsson.se/
       $("#status-options").removeClass("active");
     });
 
-    function newMessage(data) {
-      message = $("input[name=message]").val();
+    function newMessage(data, message) {
+      
       if ($.trim(message) == '') {
         return false;
       }
@@ -354,25 +360,24 @@ Website: http://emilcarlsson.se/
         };
         //renderMessage(messageObjetc,"blue-light");
         socket.emit('sendMessage', messageObjetc);
-        newMessage([author,messageObjetc.date]);
+        newMessage([author,messageObjetc.date], message);
       }
     
   }
-
-   var roomID;
  
-    $("button.submit").click(function (e) {
-            e.preventDefault();
-            submitMessage();
 
-    });
+  $("button.submit").click(function (e) {
+          e.preventDefault();
+          submitMessage();
+
+  });
 
     socket.on("receivedMessage", function (message) {
       console.log("Mensagem Recebida  de:"+ message.author+", mensagem"+message.message);
       renderMessage(message);
     });
     
-    socket.on("list_chats", function (chats) {
+    socket.on("list_chats_server", function (chats) {
       console.log("chats");
       console.log(chats);
       function listar(item) {
@@ -401,27 +406,41 @@ function showContactProfile(){
       $(".message-input").show();
   }
 }
+
     socket.on("chatsReadyServer", chatsReady => {
       $("li.contact").click(function(){ 
         showContactProfile();
         console.log(chatsReady);
       $(".messages").html("<ul  class='content-message'></ul>");
-      console.log(this.id);
-        $("div.messages").val(this.id);
+      console.log(this.value);
+        $("div.messages").val(this.value);
         $(".active").removeClass("active");
         $("#"+this.id).addClass("active");
         console.log("id "+ this.id);
         var nome = $("#"+this.id+" > div.contact-wrap > div.meta > p.name").text();
+        receiver = nome;
         console.log(nome);
         var user = $("#username").text();
         var dadosObject = {
-          id:this.id,
+          id:this.value,
           nome:user
         }
         socket.emit("joinChat",dadosObject);
-        roomID = this.id;
+        roomID = this.value;
         $(".contact-profile > p").text(nome);
     });
+    });
+
+    socket.on("listMessage", objectMessages => {
+      messages = objectMessages;
+      if(messages.length){
+        for(var i = 0; i < messages.length; i++){
+          var fullDate = messages[i].messageSendAt;
+          console.log(i);
+          if(messages[i].messageSenderID === userID) newMessage([user, fullDate], messages[i].messageText);
+          else renderMessage({"message":messages[i].messageText, "author":receiver, "date":fullDate});
+        }
+     }
     });
 
     $(window).on('keydown', function (e) {
