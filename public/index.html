@@ -325,7 +325,7 @@ Website: http://emilcarlsson.se/
       if ($.trim(message) == '') {
         return false;
       }
-      $('<li class="sent"><img src="https://img.icons8.com/flat_round/64/000000/unicorn.png" alt="'+data[0]+'"/><p>' + message + '    </p><span>'+data[1]+'</span></li>').appendTo($('.content-message')); //adiciona 
+      $('<li class="sent"><img src="https://img.icons8.com/flat_round/64/000000/unicorn.png" alt="'+data[0]+'"/><p style="margin-right: 10px">' + message + '    </p><span>'+data[1]+'</span></li>').appendTo($('.content-message')); //adiciona 
       //<a href="https://icons8.com/icon/81118/unicórnio">Unicórnio icon by Icons8</a>
       $('input[name=message]').val(null);
       $('.active > div.wrap > div.meta > p.preview').html('<span>You: </span>' + message);
@@ -336,7 +336,7 @@ Website: http://emilcarlsson.se/
       if ($.trim(message.message) == '') {
         return false;
       }
-      $('<li class="replies"><img src="https://img.icons8.com/flat_round/64/000000/funny-zebra.png" alt="' + message.author + '" /><p>' + message.message + '</p><span>'+message.date+'</span></li>').appendTo($('.content-message')); //adiciona 
+      $('<li class="replies"><img src="https://img.icons8.com/flat_round/64/000000/funny-zebra.png" alt="' + message.author + '" /><p style="margin-left: 10px">' + message.message + '</p><span style="float:right;margin-top:10px">'+message.date+'</span></li>').appendTo($('.content-message')); //adiciona 
       //<a href="https://icons8.com/icon/81227/zebra">zebra icon by Icons8</a>
       $('.active > div.wrap > div.meta > p.preview').html(message.message);
       $(".messages").animate({ scrollTop: $(document).height() }, "fast");
@@ -350,7 +350,7 @@ Website: http://emilcarlsson.se/
         var now = new Date;
         var month = now.getMonth()+1;
         if(month < 10) month = "0"+month;
-        var fullDate = +now.getDate()+"/"+month+"/"+now.getFullYear()+" "+now.getHours()+":"+now.getUTCMinutes();
+        var fullDate = "Hoje "+now.getHours()+":"+now.getUTCMinutes();
         var chatID = $(".messages").val();
         var messageObjetc = {
           chatID:chatID,
@@ -435,10 +435,18 @@ function showContactProfile(){
       messages = objectMessages;
       if(messages.length){
         for(var i = 0; i < messages.length; i++){
-          var fullDate = messages[i].messageSendAt;
+          var fullDate = new Date(messages[i].messageSendAt);
+          var now = new Date();
+          var today = "Hoje "+fullDate.getUTCHours()+":"+fullDate.getUTCMinutes();
+          if(fullDate.getUTCDate() < now.getDate()){
+            var month;
+            if(fullDate.getUTCMonth() < 10) month = "0"+fullDate.getUTCMonth();
+            today = fullDate.getUTCDate()+" - "+month+" - "+fullDate.getUTCFullYear()+"  "
+            +fullDate.getUTCHours()+":"+fullDate.getUTCMinutes();
+          }
           console.log(i);
-          if(messages[i].messageSenderID === userID) newMessage([user, fullDate], messages[i].messageText);
-          else renderMessage({"message":messages[i].messageText, "author":receiver, "date":fullDate});
+          if(messages[i].messageSenderID === userID) newMessage([user, today], messages[i].messageText);
+          else renderMessage({"message":messages[i].messageText, "author":receiver, "date":today});
         }
      }
     });
