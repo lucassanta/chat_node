@@ -11,18 +11,20 @@
 <!DOCTYPE html>
 <html class=''>
 
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet' type='text/css'>
-    <script src="https://use.typekit.net/hoy3lrg.js"></script>
-    <script>try{Typekit.load({ async: true });}catch(e){}</script>
-    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'><link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
-    <link rel="stylesheet" href="style2.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
-    <script src="jquery-3.5.1.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
-  </head>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet' type='text/css'>
+  <script src="https://use.typekit.net/hoy3lrg.js"></script>
+  <script>try { Typekit.load({ async: true }); } catch (e) { }</script>
+  <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'>
+  <link rel='stylesheet prefetch'
+    href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
+  <link rel="stylesheet" href="style2.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="jquery-3.5.1.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+</head>
 
 <body>
   <!-- 
@@ -225,12 +227,12 @@ Website: http://emilcarlsson.se/
       <div class="contact-profile" style="display: none;">
         <img src="https://img.icons8.com/cotton/64/000000/name--v2.png" alt="" />
         <p>Inicie um chat para começar!</p>
-        
+
       </div>
 
 
       <div class="messages">
-        
+
       </div>
 
       <div class="message-input" style="display: none;">
@@ -243,10 +245,11 @@ Website: http://emilcarlsson.se/
     </div>
   </div>
   <script src="jquery-3.5.1.js"></script>
-  <script src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script>
+  <script
+    src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script>
   <script class="socket">
     var socket = io('http://localhost:3000');
-    $(document).ready(function(){
+    $(document).ready(function () {
 
       var userID;
       var user = $("#username").text();
@@ -255,9 +258,60 @@ Website: http://emilcarlsson.se/
       var messages;
 
 
-    $("#formLogin").submit(function (e) {
-      e.preventDefault();
-      //if ($(".wrapper").is(":visible")) {
+      function showContactProfile() {
+        if ($(".contact-profile").is(":visible") == false) {
+          $(".contact-profile").show();
+          $(".message-input").show();
+        }
+      }
+
+      function newMessage(data, message) {
+
+        if ($.trim(message) == '') {
+          return false;
+        }
+        $('<li class="sent"><img src="https://img.icons8.com/flat_round/64/000000/unicorn.png" alt="' + data[0] + '"/><p style="margin-right: 10px">' + message + '    </p><span>' + data[1] + '</span></li>').appendTo($('.content-message')); //adiciona 
+        //<a href="https://icons8.com/icon/81118/unicórnio">Unicórnio icon by Icons8</a>
+        $('input[name=message]').val(null);
+        $('.active > div.wrap > div.meta > p.preview').html('<span>You: </span>' + message);
+        $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+      };
+
+      function renderMessage(message) {
+        if ($.trim(message.message) == '') {
+          return false;
+        }
+        $('<li class="replies"><img src="https://img.icons8.com/flat_round/64/000000/funny-zebra.png" alt="' + message.author + '" /><p style="margin-left: 10px">' + message.message + '</p><span style="float:right;margin-top:10px">' + message.date + '</span></li>').appendTo($('.content-message')); //adiciona 
+        //<a href="https://icons8.com/icon/81227/zebra">zebra icon by Icons8</a>
+        $('.active > div.wrap > div.meta > p.preview').html(message.message);
+        $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+      };
+
+      function submitMessage() {
+        var author = $("#username").text();
+        var message = $('input[name=message]').val();
+        console.log(message);
+        if (message.length) {
+          var now = new Date;
+          var month = now.getMonth() + 1;
+          if (month < 10) month = "0" + month;
+          var fullDate = "Hoje " + now.getHours() + ":" + now.getUTCMinutes();
+          var chatID = $(".messages").val();
+          var messageObjetc = {
+            chatID: chatID,
+            author: author,
+            message: message,
+            date: fullDate
+          };
+          //renderMessage(messageObjetc,"blue-light");
+          socket.emit('sendMessage', messageObjetc);
+          newMessage([author, messageObjetc.date], message);
+        }
+      }
+
+      $("#formLogin").submit(function (e) {
+        e.preventDefault();
+        //if ($(".wrapper").is(":visible")) {
         var username = $("#login").val();
         var password = $("#password").val();
 
@@ -268,198 +322,145 @@ Website: http://emilcarlsson.se/
         socket.emit('login', loginObject);
         console.log("pedido de login");
 
-      //}
-    });
- 
-    socket.on("logged", function (result) {
-      $("#frame").show();
-      $(".wrapper").hide();
-      $("#username").text(result[0].nome);
-      console.log(result);
-      userID = result[0].id;
-      socket.emit("list_chats", result[0].id); //pedido para listar chats
-    });
+        //}
+      });
 
-    socket.on("loginError", function (error) {
-      console.log(error);
-      $(".alert-danger").show();
-      $(".alert-danger").text(error);
-    });
+      socket.on("logged", function (result) {
+        $("#frame").show();
+        $(".wrapper").hide();
+        $("#username").text(result[0].nome);
+        console.log(result);
+        userID = result[0].id;
+        socket.emit("list_chats", result[0].id); //pedido para listar chats
+      });
 
-    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+      socket.on("loginError", function (error) {
+        console.log(error);
+        $(".alert-danger").show();
+        $(".alert-danger").text(error);
+      });
 
-    $("#profile-img").click(function () {
-      $("#status-options").toggleClass("active");
-    });
+      $(".messages").animate({ scrollTop: $(document).height() }, "fast");
 
-    $(".expand-button").click(function () {
-      $("#profile").toggleClass("expanded");
-      $("#contacts").toggleClass("expanded");
-    });
+      $("#profile-img").click(function () {
+        $("#status-options").toggleClass("active");
+      });
 
-    $("#status-options ul li").click(function () {
-      $("#profile-img").removeClass();
-      $("#status-online").removeClass("active");
-      $("#status-away").removeClass("active");
-      $("#status-busy").removeClass("active");
-      $("#status-offline").removeClass("active");
-      $(this).addClass("active");
+      $(".expand-button").click(function () {
+        $("#profile").toggleClass("expanded");
+        $("#contacts").toggleClass("expanded");
+      });
 
-      if ($("#status-online").hasClass("active")) {
-        $("#profile-img").addClass("online");
-      } else if ($("#status-away").hasClass("active")) {
-        $("#profile-img").addClass("away");
-      } else if ($("#status-busy").hasClass("active")) {
-        $("#profile-img").addClass("busy");
-      } else if ($("#status-offline").hasClass("active")) {
-        $("#profile-img").addClass("offline");
-      } else {
+      $("#status-options ul li").click(function () {
         $("#profile-img").removeClass();
-      };
+        $("#status-online").removeClass("active");
+        $("#status-away").removeClass("active");
+        $("#status-busy").removeClass("active");
+        $("#status-offline").removeClass("active");
+        $(this).addClass("active");
 
-      $("#status-options").removeClass("active");
-    });
-
-    function newMessage(data, message) {
-      
-      if ($.trim(message) == '') {
-        return false;
-      }
-      $('<li class="sent"><img src="https://img.icons8.com/flat_round/64/000000/unicorn.png" alt="'+data[0]+'"/><p style="margin-right: 10px">' + message + '    </p><span>'+data[1]+'</span></li>').appendTo($('.content-message')); //adiciona 
-      //<a href="https://icons8.com/icon/81118/unicórnio">Unicórnio icon by Icons8</a>
-      $('input[name=message]').val(null);
-      $('.active > div.wrap > div.meta > p.preview').html('<span>You: </span>' + message);
-      $(".messages").animate({ scrollTop: $(document).height() }, "fast");
-    };
-
-    function renderMessage(message) {
-      if ($.trim(message.message) == '') {
-        return false;
-      }
-      $('<li class="replies"><img src="https://img.icons8.com/flat_round/64/000000/funny-zebra.png" alt="' + message.author + '" /><p style="margin-left: 10px">' + message.message + '</p><span style="float:right;margin-top:10px">'+message.date+'</span></li>').appendTo($('.content-message')); //adiciona 
-      //<a href="https://icons8.com/icon/81227/zebra">zebra icon by Icons8</a>
-      $('.active > div.wrap > div.meta > p.preview').html(message.message);
-      $(".messages").animate({ scrollTop: $(document).height() }, "fast");
-    };
-
-    function submitMessage(){ 
-       var author = $("#username").text();
-      var message = $('input[name=message]').val();
-      console.log(message);
-      if (message.length) {
-        var now = new Date;
-        var month = now.getMonth()+1;
-        if(month < 10) month = "0"+month;
-        var fullDate = "Hoje "+now.getHours()+":"+now.getUTCMinutes();
-        var chatID = $(".messages").val();
-        var messageObjetc = {
-          chatID:chatID,
-          author: author,
-          message: message,
-          date:fullDate
+        if ($("#status-online").hasClass("active")) {
+          $("#profile-img").addClass("online");
+        } else if ($("#status-away").hasClass("active")) {
+          $("#profile-img").addClass("away");
+        } else if ($("#status-busy").hasClass("active")) {
+          $("#profile-img").addClass("busy");
+        } else if ($("#status-offline").hasClass("active")) {
+          $("#profile-img").addClass("offline");
+        } else {
+          $("#profile-img").removeClass();
         };
-        //renderMessage(messageObjetc,"blue-light");
-        socket.emit('sendMessage', messageObjetc);
-        newMessage([author,messageObjetc.date], message);
-      }
-    
-  }
- 
 
-  $("button.submit").click(function (e) {
-          e.preventDefault();
-          submitMessage();
+        $("#status-options").removeClass("active");
+      });
 
-  });
-
-    socket.on("receivedMessage", function (message) {
-      console.log("Mensagem Recebida  de:"+ message.author+", mensagem"+message.message);
-      renderMessage(message);
-    });
-    
-    socket.on("list_chats_server", function (chats) {
-      console.log("chats");
-      console.log(chats);
-      function listar(item) {
-//onclick='joinChat("+item[0].chatID+")'
-        $("#contacts ul").append("<li class=\"contact\"  id=\"contact"+ item[0].chatID +"\" value=" + item[0].chatID + ">" +
-          "<div class=\"wrap contact-wrap\" >" +
-          " <span class=\"contact-status\"></span>" +
-          " <img src=\"https://img.icons8.com/cotton/64/000000/name--v2.png\" alt=\"\" />" +
-          "<div class=\"meta\">" +
-          " <p class=\"name\">" + item[0].nome + "</p>" +
-          "<p class=\"preview\"><span>You:</span> That's bullshit. This" +
-          "  deal is solid.</p>" +
-          " </div>" +
-          " </div>" +
-          " </li>"
-        ); 
-       }
-      $("#contacts").html("<ul></ul>");
-      chats.forEach(listar);
-      socket.emit("chatsReady", true);
-    });
-
-function showContactProfile(){
-  if($(".contact-profile").is(":visible") == false){
-      $(".contact-profile").show();
-      $(".message-input").show();
-  }
-}
-
-    socket.on("chatsReadyServer", chatsReady => {
-      $("li.contact").click(function(){ 
-        showContactProfile();
-        console.log(chatsReady);
-      $(".messages").html("<ul  class='content-message'></ul>");
-      console.log(this.value);
-        $("div.messages").val(this.value);
-        $(".active").removeClass("active");
-        $("#"+this.id).addClass("active");
-        console.log("id "+ this.id);
-        var nome = $("#"+this.id+" > div.contact-wrap > div.meta > p.name").text();
-        receiver = nome;
-        console.log(nome);
-        var user = $("#username").text();
-        var dadosObject = {
-          id:this.value,
-          nome:user
-        }
-        socket.emit("joinChat",dadosObject);
-        roomID = this.value;
-        $(".contact-profile > p").text(nome);
-    });
-    });
-
-    socket.on("listMessage", objectMessages => {
-      messages = objectMessages;
-      if(messages.length){
-        for(var i = 0; i < messages.length; i++){
-          var fullDate = new Date(messages[i].messageSendAt);
-          var now = new Date();
-          var today = "Hoje "+fullDate.getUTCHours()+":"+fullDate.getUTCMinutes();
-          if(fullDate.getUTCDate() < now.getDate()){
-            var month;
-            if(fullDate.getUTCMonth() < 10) month = "0"+fullDate.getUTCMonth();
-            today = fullDate.getUTCDate()+" - "+month+" - "+fullDate.getUTCFullYear()+"  "
-            +fullDate.getUTCHours()+":"+fullDate.getUTCMinutes();
-          }
-          console.log(i);
-          if(messages[i].messageSenderID === userID) newMessage([user, today], messages[i].messageText);
-          else renderMessage({"message":messages[i].messageText, "author":receiver, "date":today});
-        }
-     }
-    });
-
-    $(window).on('keydown', function (e) {
-      if (e.which == 13) {
+      $("button.submit").click(function (e) {
+        e.preventDefault();
         submitMessage();
-        return false;
-      }
-    });
 
-  });
+      });
+
+      socket.on("receivedMessage", function (message) {
+        console.log("Mensagem Recebida  de:" + message.author + ", mensagem" + message.message);
+        renderMessage(message);
+      });
+
+      socket.on("list_chats_server", function (chats) {
+        console.log("chats");
+        console.log(chats);
+        function listar(item) {
+          //onclick='joinChat("+item[0].chatID+")'
+          $("#contacts ul").append("<li class=\"contact\"  id=\"contact" + item[0].chatID + "\" value=" + item[0].chatID + ">" +
+            "<div class=\"wrap contact-wrap\" >" +
+            " <span class=\"contact-status\"></span>" +
+            " <img src=\"https://img.icons8.com/cotton/64/000000/name--v2.png\" alt=\"\" />" +
+            "<div class=\"meta\">" +
+            " <p class=\"name\">" + item[0].nome + "</p>" +
+            "<p class=\"preview\"><span>You:</span> That's bullshit. This" +
+            "  deal is solid.</p>" +
+            " </div>" +
+            " </div>" +
+            " </li>"
+          );
+        }
+        $("#contacts").html("<ul></ul>");
+        chats.forEach(listar);
+        socket.emit("chatsReady", true);
+      });
+
+      socket.on("chatsReadyServer", chatsReady => {
+        $("li.contact").click(function () {
+          showContactProfile();
+          console.log(chatsReady);
+          $(".messages").html("<ul  class='content-message'></ul>");
+          console.log(this.value);
+          $("div.messages").val(this.value);
+          $(".active").removeClass("active");
+          $("#" + this.id).addClass("active");
+          console.log("id " + this.id);
+          var nome = $("#" + this.id + " > div.contact-wrap > div.meta > p.name").text();
+          receiver = nome;
+          console.log(nome);
+          var user = $("#username").text();
+          var dadosObject = {
+            id: this.value,
+            nome: user
+          }
+          socket.emit("joinChat", dadosObject);
+          roomID = this.value;
+          $(".contact-profile > p").text(nome);
+        });
+      });
+
+      socket.on("listMessage", objectMessages => {
+        messages = objectMessages;
+        if (messages.length) {
+          for (var i = 0; i < messages.length; i++) {
+            var fullDate = new Date(messages[i].messageSendAt);
+            var now = new Date();
+            var today = "Hoje " + fullDate.getUTCHours() + ":" + fullDate.getUTCMinutes();
+            if (fullDate.getUTCDate() < now.getDate()) {
+              var month;
+              if (fullDate.getUTCMonth() < 10) month = "0" + fullDate.getUTCMonth();
+              today = fullDate.getUTCDate() + " - " + month + " - " + fullDate.getUTCFullYear() + "  "
+                + fullDate.getUTCHours() + ":" + fullDate.getUTCMinutes();
+            }
+            console.log(i);
+            if (messages[i].messageSenderID === userID) newMessage([user, today], messages[i].messageText);
+            else renderMessage({ "message": messages[i].messageText, "author": receiver, "date": today });
+          }
+        }
+      });
+
+      $(window).on('keydown', function (e) {
+        if (e.which == 13) {
+          submitMessage();
+          return false;
+        }
+      });
+
+    });
   </script>
- </body>
+</body>
 
 </html>
