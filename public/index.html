@@ -24,6 +24,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
   <script src="jquery-3.5.1.js"></script>
   <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+  <script src='https://kit.fontawesome.com/a076d05399.js'></script>
 </head>
 
 <body>
@@ -59,7 +60,7 @@ Website: http://emilcarlsson.se/
       </form>
 
       <div id="formFooter">
-        <a class="underlineHover" href="http://localhost:3000/cadastro.html">Quero me cadastrar</a>
+        <a class="underlineHover" href="cadastro.html">Quero me cadastrar</a>
       </div>
 
     </div>
@@ -225,6 +226,7 @@ Website: http://emilcarlsson.se/
     </div>
     <div class="content">
       <div class="contact-profile" style="display: none;">
+        <i class="fa fa-chevron-left"></i>
         <img src="https://img.icons8.com/cotton/64/000000/name--v2.png" alt="" />
         <p>Inicie um chat para começar!</p>
 
@@ -248,10 +250,10 @@ Website: http://emilcarlsson.se/
   <script
     src='//production-assets.codepen.io/assets/common/stopExecutionOnTimeout-b2a7b3fe212eaa732349046d8416e00a9dec26eb7fd347590fbced3ab38af52e.js'></script>
   <script class="socket">
-    var socket = io('http://localhost:3000');
+    var socket = io('http://192.168.0.104:3000');
     $(document).ready(function () {
 
-      var userID;
+      var userID; 
       var user = $("#username").text();
       var roomID;
       var receiver;
@@ -329,7 +331,7 @@ Website: http://emilcarlsson.se/
         $("#frame").show();
         $(".wrapper").hide();
         $("#username").text(result[0].nome);
-        console.log(result);
+        //console.log(result);
         userID = result[0].id;
         socket.emit("list_chats", result[0].id); //pedido para listar chats
       });
@@ -381,13 +383,13 @@ Website: http://emilcarlsson.se/
       });
 
       socket.on("receivedMessage", function (message) {
-        console.log("Mensagem Recebida  de:" + message.author + ", mensagem" + message.message);
+        //console.log("Mensagem Recebida  de:" + message.author + ", mensagem" + message.message);
         renderMessage(message);
       });
 
       socket.on("list_chats_server", function (chats) {
-        console.log("chats");
-        console.log(chats);
+        //console.log("chats");
+        //console.log(chats);
         function listar(item) {
           //onclick='joinChat("+item[0].chatID+")'
           $("#contacts ul").append("<li class=\"contact\"  id=\"contact" + item[0].chatID + "\" value=" + item[0].chatID + ">" +
@@ -407,20 +409,45 @@ Website: http://emilcarlsson.se/
         chats.forEach(listar);
         socket.emit("chatsReady", true);
       });
-
+      $(window).resize(function(){
+        if(window.innerWidth > 735){
+          $("#sidepanel").show();
+          $("#sidepanel").css("width", "40%");
+          $(".content").show();
+          $(".content").css("width", "")
+        }
+        if(window.innerWidth < 735 && $(".fa-chevron-left").is(":visible") == true){
+            $("#sidepanel").hide();
+            $(".content").css("width", "100%")
+          }
+          if(!($("li.contact").hasClass("active"))){
+            $("#sidepanel").css("width", "100%");            
+          }
+      })
+      $(".fa-chevron-left").click(function(e){
+        e.preventDefault();
+        $("#sidepanel").show();
+        $("#sidepanel").css("width", "100%");
+        $(".content").hide();
+      })
       socket.on("chatsReadyServer", chatsReady => {
         $("li.contact").click(function () {
           showContactProfile();
+          if(window.innerWidth < 735 && $(".content").is(":visible") == false){
+            $(".content").show();
+            $(".content").css("width","100%");
+            $("#sidepanel").hide();
+          }
           console.log(chatsReady);
           $(".messages").html("<ul  class='content-message'></ul>");
-          console.log(this.value);
+          //console.log(this.value);
           $("div.messages").val(this.value);
           $(".active").removeClass("active");
           $("#" + this.id).addClass("active");
-          console.log("id " + this.id);
+          //console.log("id " + this.id);
           var nome = $("#" + this.id + " > div.contact-wrap > div.meta > p.name").text();
           receiver = nome;
-          console.log(nome);
+          //console.log(nome);
           var user = $("#username").text();
           var dadosObject = {
             id: this.value,
@@ -445,7 +472,7 @@ Website: http://emilcarlsson.se/
               today = fullDate.getUTCDate() + " - " + month + " - " + fullDate.getUTCFullYear() + "  "
                 + fullDate.getUTCHours() + ":" + fullDate.getUTCMinutes();
             }
-            console.log(i);
+            //console.log(i);
             if (messages[i].messageSenderID === userID) newMessage([user, today], messages[i].messageText);
             else renderMessage({ "message": messages[i].messageText, "author": receiver, "date": today });
           }
